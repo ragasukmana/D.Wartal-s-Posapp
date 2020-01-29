@@ -3,7 +3,10 @@ import { withRouter, Link} from 'react-router-dom'
 import { Button, 
     Popup, 
     Grid, 
-    Header,} from 'semantic-ui-react'
+    Header,
+    Modal,
+    Icon,
+    Image} from 'semantic-ui-react'
 import '../pages/css/header.css'
 
 class Headers extends React.Component {
@@ -35,9 +38,6 @@ class Headers extends React.Component {
                 <a className="item" href="/home">
                 <img alt ="" src="/images/wartallogo.png" style={{height:50, width:70}} />
                  D. Wartal's
-                </a>
-                <a className="item brown item">
-                    About Us
                 </a>
                 <Link to="/order" className="item brown item">
                     Order

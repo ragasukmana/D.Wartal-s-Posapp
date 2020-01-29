@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import {
@@ -10,7 +9,10 @@ import {
     Button,
     Input,
     Menu,
-    CardContent
+    CardContent,
+    Message,
+    Dropdown,
+    Pagination
 } from 'semantic-ui-react'
 import axios from 'axios'
 
@@ -18,25 +20,50 @@ class Order extends React.Component {
 
     componentDidMount() {
         this.GetListOrder()
+        this.getTotalPage()
     }
+    // constructor(props){
+    //     super(props)
+    //     const data : localStorage.getItem('data')
+    // }
     state = {
         dataProduct: [],
         cart: [],
         order: [],
         grandTotal: 0,
         name: [],
-        input:""
+        input:"",
+        name: '',
+        limit: 6,
+        offset: 0,
+        sortby: 'name ASC',
+        // token: data? JSON.parse(data).token : ''
     }
     
     GetListOrder = () => {
-        axios.get('http://127.0.0.1:3003/products')
-            .then(res => {
-                this.setState({ dataProduct: res.data.data })
+        axios.get(`http://127.0.0.1:3003/products?limit=${this.state.limit}&offset=${this.state.offset}`, {
+            headers: {
+                authorization: this.state.token      
+        }}) .then(res => {    
+                if(res.status === 200) {
+                    this.setState({dataProduct: res.data.data.result})
+                }
             })
             .catch(err => {
-
             })
-    }
+        }
+
+
+    getTotalPage = () => {
+            axios.get(`http://127.0.0.1:3003/products?`)
+                .then(res => {    
+                    if(res.status === 200) {
+                        this.setState({TotalPage: res.data.data.TotalPage})
+                    }
+                })
+                .catch(err => {
+                })
+            }
 
     increaseOrder = (event, price) => {
         this.setState({
@@ -44,12 +71,10 @@ class Order extends React.Component {
                 {...order, quantity: order.quantity + 1, totalPrice:price*(order.quantity+1)} : order)),
             grandTotal : this.state.grandTotal + parseInt(price)
         },()=>{
-            // console.log(this.state.order);
             
         }) 
         
     }
-
     decreaseOrder = (event, price) => {
         this.setState({
             order: this.state.order.map((order)=>(order.id == event.target.id ? 
@@ -57,10 +82,8 @@ class Order extends React.Component {
             grandTotal : this.state.grandTotal - parseInt(price)
 
         })
-        // console.log(this.decreaseOrder);
+        
     }
-    
-
     onSelectProduct = (event, data) => {
         let checkProduct = []
         if(this.state.cart.length === 0){
@@ -75,7 +98,7 @@ class Order extends React.Component {
                 }],
                 grandTotal: this.state.grandTotal + parseInt(data.price)
             }, () => {
-                // console.log(this.state.cart);
+                
             })
         }else{
             this.state.cart.map((item, index) => {
@@ -96,10 +119,10 @@ class Order extends React.Component {
                     }],
             grandTotal: this.state.grandTotal + parseInt(data.price)
                 },()=>{
-                    // console.log(this.state.cart, this.state.order);
+    
                 })
             }else{
-                // console.log('item exits');
+
                 
             }
         }
@@ -108,9 +131,7 @@ class Order extends React.Component {
         var totalPrice = 0
         this.state.order.map((order, index) => {
             if(order.id == event.target.id){
-                totalPrice = order.totalPrice
-                // console.log(totalPrice);
-                
+                totalPrice = order.totalPrice    
             }
         })
         let cartForDelete = this.state.cart.filter((data) => {
@@ -123,38 +144,47 @@ class Order extends React.Component {
         this.setState({
             cart: cartForDelete,
             order: orderForDelete,
-            // grandTotal: (this.state.grandTotal - parseInt(totalPrice))
             grandTotal: (this.state.grandTotal - parseInt(totalPrice)) || 0
         });
-        // console.log(this.state.cartForDelete);
-        
     }
-
     onCheckOut = async (event)  => {
         const body = {
             user_id: 43,
             order: this.state.order
         }
-        console.log(body);
         await axios.post('http://127.0.0.1:3003/order/', body).then(
             res=>{
-                this.setState({
-                    cart:[],
-                    order:[]
-                })
+                if(res.status === 200){
+                    this.setState({
+                        cart:[],
+                        order:[],
+                        grandTotal: 0
+                    })
+                    alert("Order Already Set")
+                    
+                }
+               
             }) 
-            .catch(console.log)
+            
     }
-
-    onSearch = async (event ,values) => {
+    onSearch = async (event ,{name, limit, offset, sortby}) => {
         event.preventDefault()
-        if(values !=='' ){
-            await axios.get(`http://127.0.0.1:3003/products?name=${values}`)
+        await this.setState((prevState, currentState) => {
+            return {
+                ...prevState,
+                name: name || prevState.name,
+                sortby:sortby || prevState.sortby,
+                limit:limit || prevState.limit,
+                offset:offset || prevState.offset
+            }
+        })
+        if(name !== ''){
+            await axios.get(`http://127.0.0.1:3003/products?name=${this.state.name}&limit=${this.state.limit}&offset=${this.state.offset}&sortby=${this.state.sortby}`)
             .then(res=>{
                 this.setState((prevState, currentState) => {
                     return {
                         ...prevState,
-                        dataProduct:[...res.data.data]
+                        dataProduct:[...res.data.data.result]
                     }
                 })
             })
@@ -164,14 +194,13 @@ class Order extends React.Component {
                 this.setState((prevState, currentState) => {
                     return{
                         ...prevState,
-                        dataProduct:[...res.data.data]
+                        dataProduct:[...res.data.data.result]
                     }
                 })
             })
         }
     }
-
-    onSortByName = async(event, values) => {
+    onSortBy = async(event, values) => {
         event.preventDefault()
         if(values !== ''){
             await axios.get(`http://127.0.0.1:3003/products?sortby=${values}`)
@@ -179,7 +208,7 @@ class Order extends React.Component {
                 this.setState((prevState, currentState) => {
                     return{
                         ...prevState,
-                        dataProduct:[...res.data.data]
+                        dataProduct:[...res.data.data.result]
                     }
                 })
             })
@@ -189,57 +218,87 @@ class Order extends React.Component {
                 this.setState((prevState, currentState) => {
                     return{
                         ...prevState,
-                        dataProduct:[...res.data.data]
+                        dataProduct:[...res.data.data.result]
                     }
                 })
             })
         }
     }
-    onSortByPrice = async(event, values) => {
+    onFilterCategory = async(event, values) => {
         event.preventDefault()
         if(values !== ''){
-            await axios.get(`http://127.0.0.1:3003/products?price=${values}`)
+            await axios.get(`http://127.0.0.1:3003/products?category=${values}`)
             .then(res => {
                 this.setState((prevState, currentState) => {
                     return{
                         ...prevState,
-                        dataProduct:[...res.data.data]
+                        dataProduct:[...res.data.data.result]
                     }
                 })
             })
         }else{
-            await axios.get(`http://127.0.0.1:3003/products?price=?`)
+            await axios.get(`http://127.0.0.1:3003/products?category=?`)
             .then(res => {
                 this.setState((prevState, currentState) => {
                     return{
                         ...prevState,
-                        dataProduct:[...res.data.data]
+                        dataProduct:[...res.data.data.result]
                     }
                 })
             })
         }
-    }    
+    }
+    handlePaginationChange = (event, {activePage}) =>
+        this.setState({activePage}, () => {
+            this.GetListOrder(this.state.activePage);
+        });
+
     render() {
+        console.log(this.state.grandTotal);
+        
         return (
             <Grid >
                 <Grid.Row>
                     <Grid.Column width={1}>
-                        <Segment> Side Bar</Segment>
-                    </Grid.Column>
+                    <Menu compact icon='labeled' vertical>
+                        <Menu.Item
+                        name='Manu'
+                        >
+                        <Icon name='book' />
+                        List Menu
+                        </Menu.Item>
+                        </Menu>
+                        </Grid.Column>
                     <Grid.Column width={10}>
                         <Segment.Group>
                         <Segment>
                         <Menu secondary>
-                            <div class="ui text menu">
-                                <div class="header item">Sort By</div>
-                                <a class="item" onClick={(event) => this.onSortByName(event,'name ASC')}>Name (A-Z)</a>
-                                <a class="item" onClick={(event) => this.onSortByName(event,'name DESC')}>Name (Z-A)</a>
-                                <a class="item" onClick={(event) => this.onSortByPrice(event,'price ASC')}>Price (Higher)</a>
-                                <a class="item" onClick={(event) => this.onSortByPrice(event,'price DESC')}>Price (Lower)</a>
-                            </div>
-                            <Menu.Menu position='right'>
-                                <Input icon='search' placeholder='Search Menu..' onChange={(event) => this.onSearch(event, event.target.value)}/> 
-                            </Menu.Menu>
+                        <Menu.Item> Sorting By :</Menu.Item>
+                        <Menu.Item name='Newest'
+                            onClick={(event) => this.onSortBy(event,'dateadd DESC')} />
+                        <Dropdown item text='Name'>
+                            <Dropdown.Menu>
+                                <Dropdown.Item onClick={(event) => this.onSortBy(event,'name ASC')}>Name(A-Z)</Dropdown.Item>
+                                <Dropdown.Item onClick={(event) => this.onSortBy(event,'name DESC')}>Name(Z-A)</Dropdown.Item>
+                             </Dropdown.Menu>
+                        </Dropdown>
+                        <Dropdown item text='Price'>
+                            <Dropdown.Menu>
+                                <Dropdown.Item onClick={(event) => this.onSortBy(event,'price DESC')}>Price Higher</Dropdown.Item>
+                                <Dropdown.Item onClick={(event) => this.onSortBy(event,'price ASC')}>Price Lower</Dropdown.Item>
+                             </Dropdown.Menu>
+                        </Dropdown>
+                        <Dropdown item text='Category'>
+                            <Dropdown.Menu>
+                                <Dropdown.Item onClick={(event) => this.onFilterCategory(event,'1')}>Food</Dropdown.Item>
+                                <Dropdown.Item onClick={(event) => this.onFilterCategory(event,'2')}>Drink</Dropdown.Item>
+                             </Dropdown.Menu>
+                        </Dropdown>
+                        <Menu.Menu position='right'>
+                        <Menu.Item>
+                            <Input icon='search' placeholder='Search...' onChange={(event) => this.onSearch(event,{name:event.target.value})}/>
+                        </Menu.Item>
+                        </Menu.Menu>
                         </Menu>
                         </Segment>
                         <Segment>
@@ -264,6 +323,15 @@ class Order extends React.Component {
                             </div>
                         </Segment>
                         </Segment.Group>
+                    <Button.Group> 
+                      {
+                          [...Array(this.state.TotalPage)].map((e, i) => 
+                          <Button onClick={(event) => this.onSearch(event, {offset: i* this.state.limit})}
+                          key={i+1}> {i+1} 
+                          </Button> 
+                        ) 
+                    }
+                    </Button.Group> 
                     </Grid.Column>
                     <Grid.Column width={5}>
                     <Segment.Group>
@@ -303,7 +371,7 @@ class Order extends React.Component {
                             })}
                         </Card.Group>
                     </Segment>
-                    <Segment> <Header as='h3'>Total : Rp. {this.state.grandTotal + (this.state.grandTotal *0.1)} </Header>
+                    <Segment> <Header as='h3'> Total : Rp. {this.state.grandTotal + (this.state.grandTotal *0.1)} </Header>
                             <p>Total include tax 10%</p>
                     <Button onClick={(event) => {this.onCheckOut(event)}} primary animated='vertical' attached='top'>
                         <Button.Content hidden>
@@ -313,7 +381,9 @@ class Order extends React.Component {
                                 Check Out
                         </Button.Content>
                     </Button>
-                    <Button color='red' animated='vertical' attached='bottom'>
+                    <Button color='red' 
+                    animated='vertical' attached='bottom'
+                    onClick={(event) => {this.deleteListCart(event)}}>
                         <Button.Content hidden>
                                  <Icon name='cancel'/>
                         </Button.Content>

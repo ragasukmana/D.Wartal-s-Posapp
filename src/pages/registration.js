@@ -8,7 +8,6 @@ import {
   Segment,
   Message
 } from 'semantic-ui-react'
-import './css/login.css'
 import axios from 'axios'
 import qs from 'qs'
 import { withRouter, Link } from 'react-router-dom'
@@ -73,10 +72,6 @@ class Registration extends React.Component {
         }
       }
     render(){
-      // console.log(this.state.password);
-      // console.log(this.state.username);
-      
-      
         return(
             <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
         <Grid.Column style={{ maxWidth: 450 }}>

@@ -13,7 +13,6 @@ import {
     CardContent
 } from 'semantic-ui-react'
 import axios from 'axios'
-import { Result } from 'antd'
 
 class Order extends React.Component {
 
@@ -145,16 +144,82 @@ class Order extends React.Component {
                 })
             }) 
             .catch(console.log)
-            
     }
-    onSearch = () => {
-        
+
+    onSearch = async (event ,values) => {
+        event.preventDefault()
+        if(values !=='' ){
+            await axios.get(`http://127.0.0.1:3003/products?name=${values}`)
+            .then(res=>{
+                this.setState((prevState, currentState) => {
+                    return {
+                        ...prevState,
+                        dataProduct:[...res.data.data]
+                    }
+                })
+            })
+        } else {
+            await axios.get(`http://127.0.0.1:3003/products?`)
+            .then(res => {
+                this.setState((prevState, currentState) => {
+                    return{
+                        ...prevState,
+                        dataProduct:[...res.data.data]
+                    }
+                })
+            })
+        }
     }
-    
-       
+
+    onSortByName = async(event, values) => {
+        event.preventDefault()
+        if(values !== ''){
+            await axios.get(`http://127.0.0.1:3003/products?sortby=${values}`)
+            .then(res => {
+                this.setState((prevState, currentState) => {
+                    return{
+                        ...prevState,
+                        dataProduct:[...res.data.data]
+                    }
+                })
+            })
+        }else{
+            await axios.get(`http://127.0.0.1:3003/products?sortby=?`)
+            .then(res => {
+                this.setState((prevState, currentState) => {
+                    return{
+                        ...prevState,
+                        dataProduct:[...res.data.data]
+                    }
+                })
+            })
+        }
+    }
+    onSortByPrice = async(event, values) => {
+        event.preventDefault()
+        if(values !== ''){
+            await axios.get(`http://127.0.0.1:3003/products?price=${values}`)
+            .then(res => {
+                this.setState((prevState, currentState) => {
+                    return{
+                        ...prevState,
+                        dataProduct:[...res.data.data]
+                    }
+                })
+            })
+        }else{
+            await axios.get(`http://127.0.0.1:3003/products?price=?`)
+            .then(res => {
+                this.setState((prevState, currentState) => {
+                    return{
+                        ...prevState,
+                        dataProduct:[...res.data.data]
+                    }
+                })
+            })
+        }
+    }    
     render() {
-        // console.log(this.state.grandTotal);
-        
         return (
             <Grid >
                 <Grid.Row>
@@ -165,9 +230,15 @@ class Order extends React.Component {
                         <Segment.Group>
                         <Segment>
                         <Menu secondary>
+                            <div class="ui text menu">
+                                <div class="header item">Sort By</div>
+                                <a class="item" onClick={(event) => this.onSortByName(event,'name ASC')}>Name (A-Z)</a>
+                                <a class="item" onClick={(event) => this.onSortByName(event,'name DESC')}>Name (Z-A)</a>
+                                <a class="item" onClick={(event) => this.onSortByPrice(event,'price ASC')}>Price (Higher)</a>
+                                <a class="item" onClick={(event) => this.onSortByPrice(event,'price DESC')}>Price (Lower)</a>
+                            </div>
                             <Menu.Menu position='right'>
-                                <Input icon='search' placeholder='Search Menu..'/> 
-                                
+                                <Input icon='search' placeholder='Search Menu..' onChange={(event) => this.onSearch(event, event.target.value)}/> 
                             </Menu.Menu>
                         </Menu>
                         </Segment>

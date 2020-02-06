@@ -9,29 +9,30 @@ import Headers from './components/Header'
 import Main from './pages/Main'
 import Registration from './pages/registration'
 import Order from './pages/Order'
+import Menus from './pages/Menu'
+import { connect } from "react-redux"
 
-export default class App extends React.Component {
-  state = {
-      isLogin: true,
-      isSignup: true
-  }
-  componentDidMount() {
-      const data = JSON.parse(localStorage.getItem('dataAccount'))
-      if(!data) {
-          this.setState({ isLogin: false})
-      }
-  }
+ class App extends React.Component {
   render() {
       return (
           <BrowserRouter>
-            {this.state.isLogin && <Headers {...this.props} />}
-            {this.state.isLogin && <Order {...this.props} />}
+            {this.props.auth.data.token && <Headers {...this.props} />}
               <Switch>
                   <Route path="/login" render={(props) => (<LoginForm {...props} />)} />
                   <Route path="/registration" render={(props) => (<Registration {...props} />)} />
                   <Route path="/" exact render={(props) => (<Main {...props} />)} /> 
+                  <Route path="/order" exact render={(props) => (<Order {...props} />)} /> 
+                  <Route path="/menu" exact render={(props) => (<Menus {...props} />)} /> 
               </Switch>
           </BrowserRouter>
       )
   }
 }
+
+const mapStateToProps = state => {
+    return {
+        auth: state.auth
+    }
+}
+
+export default connect(mapStateToProps)(App)

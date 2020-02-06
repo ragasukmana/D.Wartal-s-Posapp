@@ -42,6 +42,8 @@ class Order extends React.Component {
                 if (res.status === 200) {
                     this.setState({ dataProduct: res.data.data.result, TotalPage:res.data.data.TotalPage})
                 }
+                console.log(res.data.data);
+                
             })
             .catch(err => {
             })

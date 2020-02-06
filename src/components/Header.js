@@ -3,11 +3,8 @@ import { withRouter, Link} from 'react-router-dom'
 import { Button, 
     Popup, 
     Grid, 
-    Header,
-    Modal,
-    Icon,
-    Image} from 'semantic-ui-react'
-import '../pages/css/header.css'
+    Header
+} from 'semantic-ui-react'
 
 class Headers extends React.Component {
 
@@ -31,16 +28,18 @@ class Headers extends React.Component {
             console.log(err);
         }
     }
-
     render() {
         return (
             <div className="ui huge menu">
-                <a className="item" href="/home">
+                <a className="item" href="/order">
                 <img alt ="" src="/images/wartallogo.png" style={{height:50, width:70}} />
                  D. Wartal's
                 </a>
-                <Link to="/order" className="item brown item">
+                <Link to="/order" className="item brown item"> 
                     Order
+                </Link>
+                <Link to="/Menu" className="item brown item"> 
+                    Menu
                 </Link>
                 <div className="right menu">
                     <div className="item">

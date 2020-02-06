@@ -9,10 +9,12 @@ import {
   Segment,
 } from 'semantic-ui-react'
 import './css/login.css'
-import axios from 'axios'
-import qs from 'qs'
 import { withRouter, Link } from 'react-router-dom'
-
+import qs from 'qs'
+import {requestLogin} from '../public/redux/actions/auth'
+import {connect} from 'react-redux'
+import axios from 'axios'
+ 
 
 class LoginForm extends React.Component {
   componentDidMount() {
@@ -47,26 +49,24 @@ class LoginForm extends React.Component {
     if (this.state.username === "" || this.state.password === "") {
       alert("Username and Password must be filled")
     } else {
-      const body = qs.stringify(data)
-      axios.post('http://127.0.0.1:3003/user/login', body)
-        .then(res => {
-          if (res.status === 200) {
-            try {
-              localStorage.setItem('dataAccount', JSON.stringify(res.data.data))
+      // this.props.dispatch(requestLogin(data, this.props.data.auth.token)) //get data
+       //validasi
+       axios.post('http://127.0.0.1:3003/user/login', qs.stringify(data))
+       .then(response => {
+         if(response.status === 200){
+              this.props.setDataLogin(response.data.data)
               this.props.history.push('/order')
-              window.location.reload()
-            } catch (err) {
-              console.log(err);
-
-            }
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        })
-    }
-
+         }else{
+            console.log("err");
+         }
+         
+       })
+      .catch(err => {
+        console.log(err);
+        
+      })
   }
+}
   render() {
     return (
       <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
@@ -99,5 +99,18 @@ class LoginForm extends React.Component {
   }
 }
 
+const mapStateToProps = state => {
+  return {
+     auth: state.auth
+  }
+}
 
-export default withRouter(LoginForm)
+const mapDispatchToProps = dispatch => ({
+  setDataLogin: payload => dispatch ({
+    type: 'POST_LOGIN_FULFILLED',
+    payload
+  })
+})
+
+
+export default  connect(mapStateToProps, mapDispatchToProps)(LoginForm)

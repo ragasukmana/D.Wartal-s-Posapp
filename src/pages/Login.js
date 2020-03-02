@@ -5,13 +5,13 @@ import {
   Grid,
   Header,
   Image,
-  Message,
   Segment,
 } from 'semantic-ui-react'
-import './css/login.css'
-import axios from 'axios'
 import qs from 'qs'
-import { withRouter, Link } from 'react-router-dom'
+import { connect } from 'react-redux'
+import axios from 'axios'
+import { SemanticToastContainer } from 'react-semantic-toasts'
+import { toasting } from '../helper'
 
 
 class LoginForm extends React.Component {
@@ -45,34 +45,37 @@ class LoginForm extends React.Component {
       password: this.state.password
     }
     if (this.state.username === "" || this.state.password === "") {
-      alert("Username and Password must be filled")
+        toasting('Forbidden', 'Please Input your accout', 'error')
     } else {
-      const body = qs.stringify(data)
-      axios.post('http://127.0.0.1:3003/user/login', body)
-        .then(res => {
-          if (res.status === 200) {
-            try {
-              localStorage.setItem('dataAccount', JSON.stringify(res.data.data))
-              this.props.history.push('/order')
-              window.location.reload()
-            } catch (err) {
-              console.log(err);
-
-            }
+      axios.post(`${process.env.REACT_APP_HOST}/user/login`, qs.stringify(data))
+        .then(response => {
+          if (response.status === 200) {
+            toasting('Success', 'Success Login')
+            this.props.setDataLogin(response.data.data)
+            this.props.history.push('/order')
+          } else {
+            
+            console.log("err");
           }
+
         })
         .catch(err => {
-          console.log(err);
+          toasting('Failed Login', 'username or password invalid','error')
         })
     }
-
   }
   render() {
     return (
+      <div>
+        <div style={{width:280, paddingTop:80, position:'fixed', 
+        marginLeft:250}}>
+          <SemanticToastContainer position="top-right" />
+        </div>
       <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
         <Grid.Column style={{ maxWidth: 450 }}>
           <Header as='h1' color='brown' textAlign='center'>
-            <Image src='/images/wartallogo.png' className="logo" /> Login Your Account Here
+            <Image src='/images/wartallogo.png' className="logo" style={{height:170, width:230}}></Image>
+              <p>Login Your Account</p>
            </Header>
           <Form size='large'>
             <Segment raised color='orange'>
@@ -90,14 +93,25 @@ class LoginForm extends React.Component {
                 Login </Button>
             </Segment>
           </Form>
-          <Message floating>
-              Don't Have Account ? Please <Link to="/registration" color='brown'> Sign Up </Link>
-          </Message>
         </Grid.Column>
       </Grid>
+      </div>
     )
   }
 }
 
+const mapStateToProps = state => {
+  return {
+    auth: state.auth
+  }
+}
 
-export default withRouter(LoginForm)
+const mapDispatchToProps = dispatch => ({
+  setDataLogin: payload => dispatch({
+    type: 'POST_LOGIN_FULFILLED',
+    payload
+  })
+})
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginForm)

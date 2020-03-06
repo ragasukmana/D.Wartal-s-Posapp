@@ -1,7 +1,7 @@
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import {
-    Icon, Button, Menu, Table, Grid, GridColumn,
+    Icon, Button,  Table, Grid, GridColumn,
     GridRow, Segment, Header, Modal, Form, Dropdown,
     Pagination
 } from 'semantic-ui-react'
@@ -327,7 +327,7 @@ class Menus extends React.Component {
                                         <Table.Row textAlign='center'>
                                             <Table.Cell>
                                                 <img alt="" height={100} width={100}
-                                                    src={`http://localhost:3003/` + `${item.image}`} />
+                                                    src={`${process.env.REACT_APP_HOST}` + '/pictures/' + `${item.image}`} / >
                                             </Table.Cell>
                                             <Table.Cell>{item.name_product}</Table.Cell>
                                             <Table.Cell>{item.description}</Table.Cell>

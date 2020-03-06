@@ -258,7 +258,7 @@ class Order extends React.Component {
                                         return (
                                             <div style={{ marginBottom: 20 }}>
                                                 <Card onClick={(event) => this.onSelectProduct(event, item)}>
-                                                    <img alt="" height={200} src={`${process.env.REACT_APP_HOST}` + `${item.image}`} wrapped ui={false} />
+                                                    <img alt="" height={200} src={`${process.env.REACT_APP_HOST}` + '/' + `${item.image}`} wrapped ui={false} />
                                                     <Card.Content>
                                                         <Card.Header>{item.name_product}</Card.Header>
                                                         <Card.Description> Price : Rp.{item.price}

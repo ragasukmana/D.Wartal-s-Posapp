@@ -327,7 +327,7 @@ class Menus extends React.Component {
                                         <Table.Row textAlign='center'>
                                             <Table.Cell>
                                                 <img alt="" height={100} width={100}
-                                                    src={`${process.env.REACT_APP_HOST}` + `${item.image}`} / >
+                                                    src={`${process.env.REACT_APP_HOST}` + '/' + `${item.image}`} / >
                                             </Table.Cell>
                                             <Table.Cell>{item.name_product}</Table.Cell>
                                             <Table.Cell>{item.description}</Table.Cell>

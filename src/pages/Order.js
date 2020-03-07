@@ -115,15 +115,15 @@ class Order extends React.Component {
     deleteListCart = (event) => {
         var totalPrice = 0
         this.state.order.map((order, index) => {
-            if (order.id == event.target.id) {
+            if (order.id === event.target.id) {
                 totalPrice = order.totalPrice
             }
         })
         let cartForDelete = this.state.cart.filter((data) => {
-            return data.id != event.target.id
+            return data.id !== event.target.id
         })
         let orderForDelete = this.state.cart.filter((data) => {
-            return data.id != event.target.id
+            return data.id !== event.target.id
 
         })
         this.setState({

@@ -51,8 +51,6 @@ class LoginForm extends React.Component {
             this.props.setDataLogin(response.data.data)
             this.props.history.push('/order')
           } else {
-            
-            console.log("err");
           }
 
         })

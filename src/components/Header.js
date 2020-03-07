@@ -27,7 +27,6 @@ class Headers extends React.Component {
             this.props.setDataLogout()
             this.props.history.push('/login') //login again
         } catch (err) {
-            console.log(err);
         }
     }
     render() {

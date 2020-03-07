@@ -144,8 +144,6 @@ class Order extends React.Component {
         await axios.post(`${process.env.REACT_APP_HOST}/order/`, body)
         .then(
             res => {
-                console.log(body);
-                
                 if (res.status === 200) {
                     toasting('Done', 'Order Already Set')
                     // this.props.setCheckOut()
@@ -179,8 +177,6 @@ class Order extends React.Component {
         if (name_product !== '') {
         await axios.get(`${process.env.REACT_APP_HOST}/products?name_product=${this.state.name_product}&limit=${this.state.limit}&offset=${this.state.offset}&sortby=${this.state.sortby}&category=${this.state.category}`)
                 .then(res => {
-                    console.log(res.data.data.TotalPage);
-                    
                     this.setState({
                         TotalPage: res.data.data.TotalPage
                     })

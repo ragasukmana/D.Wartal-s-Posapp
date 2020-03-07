@@ -40,7 +40,6 @@ class History extends React.Component {
                 })
                 let sum = a => a.reduce((x, y) => x + y);
                 let totalAmount = sum(this.state.dataPost.map(x => Number(x.total_price)));
-                console.log(totalAmount);
                 this.setState ({
                     total: totalAmount
                 })

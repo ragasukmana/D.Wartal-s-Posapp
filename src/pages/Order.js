@@ -144,6 +144,8 @@ class Order extends React.Component {
         await axios.post(`${process.env.REACT_APP_HOST}/order/`, body)
         .then(
             res => {
+                console.log(body);
+                
                 if (res.status === 200) {
                     toasting('Done', 'Order Already Set')
                     // this.props.setCheckOut()

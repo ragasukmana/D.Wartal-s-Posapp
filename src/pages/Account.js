@@ -134,7 +134,7 @@ class Account extends React.Component {
             if(res.status === 200){
                 this.getAllAccount()
                 toasting('Done', 'Data Success Submit')
-                        
+
             }
                 })
                 .catch(err => {

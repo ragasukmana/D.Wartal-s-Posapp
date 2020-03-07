@@ -15,9 +15,7 @@ import { toasting } from '../helper'
 
 
 class LoginForm extends React.Component {
-  componentDidMount() {
-    console.log("Ini komponen didmount");
-  }
+
   constructor(props) {
     super(props)
     this.state = {
@@ -50,7 +48,6 @@ class LoginForm extends React.Component {
       axios.post(`${process.env.REACT_APP_HOST}/user/login`, qs.stringify(data))
         .then(response => {
           if (response.status === 200) {
-            toasting('Success', 'Success Login')
             this.props.setDataLogin(response.data.data)
             this.props.history.push('/order')
           } else {

@@ -49,24 +49,20 @@ class Order extends React.Component {
                     this.props.setDataTotalPage(res.data.data.TotalPage)
                 }
             })
-            .catch(err => {
-            })
     }
-    increaseOrder = (event, price) => {
+    increaseOrder = (id, price) => {
         this.setState({
-            order: this.state.order.map((order) => (order.id == event.target.id ?
+            order: this.state.order.map((order) => (order.id === id ?
                 { ...order, quantity: order.quantity + 1, totalPrice: price * (order.quantity + 1) } : order)),
             grandTotal: this.state.grandTotal + parseInt(price)
-        }, () => {
         })
 
     }
-    decreaseOrder = (event, price) => {
+    decreaseOrder = (id, price) => {
         this.setState({
-            order: this.state.order.map((order) => (order.id == event.target.id ?
+            order: this.state.order.map((order) => (order.id === id ?
                 { ...order, quantity: order.quantity - 1, totalPrice: price * (order.quantity - 1) } : order)),
             grandTotal: this.state.grandTotal - parseInt(price)
-
         })
 
     }
@@ -83,11 +79,9 @@ class Order extends React.Component {
                     totalPrice: data.price * 1
                 }],
                 grandTotal: this.state.grandTotal + parseInt(data.price)
-            }, () => {
-
             })
         } else {
-            this.state.cart.map((item, index) => {
+            this.state.cart.map((item) => {
                 if (item.id === data.id) {
                     checkProduct.push('1')
                 }
@@ -112,18 +106,18 @@ class Order extends React.Component {
             }
         }
     }
-    deleteListCart = (event) => {
-        var totalPrice = 0
+    deleteListCart = (id) => {
+        let totalPrice = 0
         this.state.order.map((order, index) => {
-            if (order.id === event.target.id) {
+            if (order.id === id) {
                 totalPrice = order.totalPrice
             }
         })
         let cartForDelete = this.state.cart.filter((data) => {
-            return data.id !== event.target.id
+            return data.id !== id
         })
-        let orderForDelete = this.state.cart.filter((data) => {
-            return data.id !== event.target.id
+        let orderForDelete = this.state.order.filter((data) => {
+            return data.id !== id
 
         })
         this.setState({
@@ -131,6 +125,14 @@ class Order extends React.Component {
             order: orderForDelete,
             grandTotal: (this.state.grandTotal - parseInt(totalPrice)) || 0
         });
+    }
+
+    cancelListCart = () => {
+        this.setState({
+            cart: [],
+            order: [],
+            grandTotal: 0
+        })
     }
 
     onCheckOut = async (event) => {
@@ -146,7 +148,6 @@ class Order extends React.Component {
             res => {
                 if (res.status === 200) {
                     toasting('Done', 'Order Already Set')
-                    // this.props.setCheckOut()
                     this.setState({ cart: [],
                         order: [],
                         grandTotal: 0,
@@ -198,7 +199,7 @@ class Order extends React.Component {
     }
 
     render() {
-        const { open, size } = this.state
+        const { open } = this.state
         return (
             <Grid>
             <div style={{'zIndex': 2000, 'display': 'fixed'}}>
@@ -300,17 +301,17 @@ class Order extends React.Component {
                                                         <div style={{ float: 'center', marginTop: 8 }}>
                                                             <Button.Group size='mini\'>
                                                                 <Button id={item.id} 
-                                                                onClick={(event) => this.increaseOrder(event, item.price)} 
+                                                                onClick={(event) => this.increaseOrder(item.id, item.price)} 
                                                                 >
                                                                     <Icon name='add' />
                                                                     Add
                                                                 </Button>
                                                                 <Button> {item.quantity} </Button>
-                                                                <Button id={item.id} disabled={item.quantity == 1}
-                                                                    onClick={(event) => this.decreaseOrder(event, item.price)}>
+                                                                <Button id={item.id} disabled={item.quantity === 1}
+                                                                    onClick={(event) => this.decreaseOrder(item.id, item.price)}>
                                                                     <Icon name='minus' /> Min
                                                                 </Button>
-                                                                <Button id={item.id} onClick={(event) => { this.deleteListCart(event) }}>
+                                                                <Button id={item.id} onClick={(event) => { this.deleteListCart(item.id) }}>
                                                                     <Icon name='trash alternate outline' />
                                                                 </Button>
                                                             </Button.Group>
@@ -341,15 +342,13 @@ class Order extends React.Component {
                                         Check Out
                                     </Button.Content>
                                 </Button>
-                                <Button color='red' animated='vertical' attached='bottom'>
-                                    <a href='/order' style={{color:'white'}}>
+                                <Button color='red' animated='vertical' attached='bottom' onClick={() => this.cancelListCart()}>         
                                     <Button.Content hidden>
                                         <Icon name='cancel' />
                                     </Button.Content>
                                     <Button.Content visible>
                                         Cancel
-                                    </Button.Content>
-                                    </a>
+                                    </Button.Content>       
                                 </Button>
                             </Segment>
                         </Segment.Group>

@@ -87,8 +87,7 @@ class Account extends React.Component {
                         this.setState({ open: false, pictures: {} })
                     }
                 })
-                .catch((error) => {
-                    console.log(error);
+                .catch(() => {
                     toasting('Cannot Submit', 'check usename or password !!', 'error')
                 })
         }
@@ -144,15 +143,15 @@ class Account extends React.Component {
     }
     handleUpdateSubmit = (event, id_user) => {
         event.preventDefault()
-        if (this.state.username === '' || this.state.name === '' ||
-            this.state.role === '' || this.state.password === '') {
+        if (!this.state.fillAccount.username || !this.state.fillAccount.username ||
+            !this.state.fillAccount.role || !this.state.fillAccount.password) {
             toasting('Cannot Submit', 'All Must Fill !!', 'error')
         } else {
-            const body = new FormData()     
+            const body = new FormData()
             body.append('username', this.state.fillAccount.username)
-            body.append('password',this.state.fillAccount.password)
-            body.append('name',this.state.fillAccount.name)
-            body.append('role',this.state.fillAccount.role)
+            body.append('password', this.state.fillAccount.password)
+            body.append('name', this.state.fillAccount.name)
+            body.append('role', this.state.fillAccount.role)
             body.append('pictures', this.state.fillAccount.pictures)
             axios.put(`${process.env.REACT_APP_HOST}/user/edituser/${id_user}`, body)
                 .then(res => {
@@ -285,12 +284,12 @@ class Account extends React.Component {
 
 
                             <Modal size={'mini'} open={openDelete} onClose={this.closedelete} style={{ textAlign: 'center' }}>
-                                <Modal.Header>Are you sure delete this Account ?</Modal.Header>
+                                <Modal.Header>Delete this Account ?</Modal.Header>
                                 <Modal.Content>
                                     {selectAccount.pictures ?
-                                        <img src={`${process.env.REACT_APP_HOST}` + '/' + selectAccount.pictures} alt=''
+                                        <img src={process.env.REACT_APP_HOST + '/' + selectAccount.pictures} alt='img'
                                             style={{ height: 100, width: 100, borderRadius: 100 }} /> :
-                                        <img src={require('../public/assets/Images/defaultphoto.png')} alt=''
+                                        <img src={require('../public/assets/Images/defaultphoto.png')} alt='img'
                                             style={{ height: 100, width: 100, borderRadius: 100 }} />}
                                     <h3 class="ui header"> {this.state.exitsAccount.name}
                                     </h3>
@@ -310,6 +309,7 @@ class Account extends React.Component {
                                         labelPosition='right'
                                         content='Yes'
                                         onClick={(event) => this.handleDeleteAccount(event, this.state.exitsAccount.id_user)}
+
                                     />
                                 </Modal.Actions>
                             </Modal>
@@ -330,7 +330,7 @@ class Account extends React.Component {
                             </Table.Header>
                             <Table.Body>
                                 <Editaccount
-                                    size={'tiny'}
+                                    size={'mini'}
                                     open={openedit}
                                     closeedit={this.closeedit}
                                     data={this.state.fillAccount}
@@ -347,7 +347,7 @@ class Account extends React.Component {
                                         <Table.Row textAlign='center'>
                                             <Table.Cell>{item.name}</Table.Cell>
                                             <Table.Cell>{item.username}</Table.Cell>
-                                            <Table.Cell>{item.role === 2 ? "Cashier" : "Administrator"}</Table.Cell>
+                                            <Table.Cell>{item.role === 2 ? 'Cashier' : item.role === 1 ? 'Administrator' : "Customer"}</Table.Cell>
                                             <Table.Cell textAlign='center'>{Moment(item.create_date).format('DD/MM/YYYY')}</Table.Cell>
                                             <Table.Cell textAlign='center'>{Moment(item.update_date).format('DD/MM/YYYY')}</Table.Cell>
                                             <Table.Cell textAlign='center'>

@@ -4,7 +4,7 @@ import {
 } from 'semantic-ui-react'
 
 
-function Editproduct(props) {    
+function Editproduct(props) {
     return (
         <Modal size={props.size} open={props.open} onClose={props.closeedit}>
             <Modal.Header >Edit Menu</Modal.Header>
@@ -23,7 +23,11 @@ function Editproduct(props) {
                             placeholder='Input here description'>{props.data.description}</textarea>
                     </Form.Field>
                     <Form.Field>
-                        Images
+                        <div style={{ textAlign: 'center' }}>
+                            <img src={props.data.imageURL ? props.data.imageURL : process.env.REACT_APP_HOST + '/' + props.data.image}
+                                style={{ height: 180, width: 220 }} alt='img' />
+                        </div>
+                        <label>Images</label>
                         <input type="file" name="filename"
                             onChange={(event) => props.handleImageUpdate(event)}></input>
                     </Form.Field>

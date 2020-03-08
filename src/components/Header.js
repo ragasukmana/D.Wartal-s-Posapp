@@ -30,8 +30,6 @@ class Headers extends React.Component {
         }
     }
     render() {
-        console.log(this.props.auth.data.pictures);
-        
         return (
             <div className="ui huge menu">
                 <a className="item" href="/order">

@@ -20,6 +20,7 @@ class Menus extends React.Component {
     show = (size) => () => this.setState({ size, open: true })
     close = () => this.setState({ open: false })
     closeedit = () => this.setState({ openedit: false })
+    closeDelete = () => this.setState({ openDelete: false })
 
     state = {
         dataProduct: [],
@@ -28,8 +29,11 @@ class Menus extends React.Component {
         sortby: '',
         open: false,
         openedit: false,
+        openDelete: false,
         dataCategory: [],
-        fillProduct: {}
+        fillProduct: {},
+        dataMenu: {},
+        imageURL:''
     }
     getAllMenu = () => {
         axios.get(`${process.env.REACT_APP_HOST}/products?limit=${this.state.limit}&offset=${this.state.offset}`)
@@ -39,9 +43,6 @@ class Menus extends React.Component {
                     this.props.setDataTotalPage(res.data.data.TotalPage)
                 }
             })
-            .catch(err => {
-
-            })
     }
     getAllCategory = () => {
         axios.get(`${process.env.REACT_APP_HOST}/category/`)
@@ -49,9 +50,6 @@ class Menus extends React.Component {
                 if (res.status === 200) {
                     this.props.setDataCategory(res.data.data.result)
                 }
-            })
-            .catch(err => {
-
             })
     }
     onHandleEditProduct = (event, data) => {
@@ -84,7 +82,8 @@ class Menus extends React.Component {
     handleImage = (event) => {
         let inputImage = event.target.files[0]
         this.setState({
-            image: inputImage
+            image: inputImage,
+            imageURL: URL.createObjectURL(inputImage)
         })
 
     }
@@ -106,10 +105,13 @@ class Menus extends React.Component {
                 .then(res => {
                     if (res.status === 200) {
                         toasting('Done', 'Data Success Submit')
+                        this.setState({
+                            open: false, imageURL:''
+                        })
                         this.getAllMenu()
                     }
                 })
-                .catch(err => {
+                .catch(() => {
                     toasting('Forbidden', 'Invalid file format/size !!!', 'error')
                 })
         }
@@ -127,10 +129,10 @@ class Menus extends React.Component {
         this.setState({
             fillProduct: {
                 ...this.state.fillProduct,
-                image: inputImage
+                image: inputImage,
+                imageURL: URL.createObjectURL(inputImage)
             }
         })
-
     }
 
     handleCategoryUpdate = (value) => {
@@ -171,11 +173,22 @@ class Menus extends React.Component {
             .then(res => {
                 if (res.status === 200) {
                     toasting('Done', 'Data Success Submit')
+                    this.getAllMenu()
+                    this.setState({
+                        openedit: false
+                    })
                 }
             })
             .catch(() => {
                 toasting('Forbidden', 'Invalid Format/size', 'error')
             })
+    }
+    handleModalDelete = (event, data) => {
+        event.preventDefault()
+        this.setState({
+            dataMenu: data,
+            openDelete: true
+        })
     }
     handleDeleteProduct = (event, id) => {
         event.preventDefault()
@@ -183,12 +196,14 @@ class Menus extends React.Component {
             .then(res => {
                 if (res.status === 200) {
                     this.getAllMenu()
-                    try {
-                        toasting('Done', 'Success Delete')
-                    } catch (error) {
-
-                    }
+                    toasting('Done', 'Success Delete')
+                    this.setState({
+                        openDelete: false
+                    })
                 }
+            })
+            .catch(() => {
+                toasting('Failed', 'Failed delete', 'error')
             })
     }
     getPage = async (event, { limit, offset, sortby }) => {
@@ -216,7 +231,7 @@ class Menus extends React.Component {
 
     }
     render() {
-        const { open, size, openedit } = this.state
+        const { open, size, openedit, openDelete } = this.state
         const categoryOption = this.props.getCategory.dataCategory.map(item => {
             return {
                 key: item.id,
@@ -224,10 +239,9 @@ class Menus extends React.Component {
                 value: item.id
             }
         })
-
         return (
             <Grid padded centered>
-                <div style={{ 'zIndex': 2000, position: 'fixed' }}>
+                <div style={{ 'zIndex': 2000, 'position': 'absolute' }}>
                     <SemanticToastContainer position="top-right" />
                 </div>
                 <GridRow>
@@ -254,6 +268,10 @@ class Menus extends React.Component {
                                                 onChange={(event) => this.handleDescriptionProduct(event)} />
                                         </Form.Field>
                                         <Form.Field>
+                                            <div style={{ textAlign: 'center' }}>
+                                                <img src={ this.state.imageURL ? this.state.imageURL : require('../public/assets/Images/placeholder_img.png')}
+                                                    style={{ height: 180, width: 220}} alt='img' />
+                                            </div>
                                             <label>Image</label>
                                             <input type="file" name="filename"
                                                 onChange={(event) => this.handleImage(event)}></input>
@@ -283,6 +301,29 @@ class Menus extends React.Component {
                                     />
                                 </Modal.Actions>
                             </Modal>
+
+                            <Modal size={'mini'} open={openDelete} onClose={this.closeDelete} style={{ textAlign: 'center' }}>
+                                <Modal.Header>Delete this menu ?</Modal.Header>
+                                <Modal.Content>
+                                    <img src={process.env.REACT_APP_HOST + '/' + this.state.dataMenu.image} alt='img'
+                                        style={{ height: 180, width: 200}} />
+                                    <h3 class="ui header"> {this.state.dataMenu.name_product}
+                                    </h3>
+                                </Modal.Content>
+
+                                <Modal.Actions>
+                                    <Button negative onClick={this.closeDelete}>No</Button>
+                                    <Button
+                                        positive
+                                        icon='checkmark'
+                                        labelPosition='right'
+                                        content='Yes'
+                                        onClick={(event) => this.handleDeleteProduct(event, this.state.dataMenu.id)}
+
+                                    />
+                                </Modal.Actions>
+                            </Modal>
+
                         </Segment.Group>
                     </GridColumn>
                     <GridColumn width={14}>
@@ -326,7 +367,7 @@ class Menus extends React.Component {
                                         <Table.Row textAlign='center'>
                                             <Table.Cell>
                                                 <img alt="" height={100} width={100}
-                                                    src={`${process.env.REACT_APP_HOST}` + '/' + `${item.image}`} />
+                                                    src={process.env.REACT_APP_HOST + '/' + item.image} />
                                             </Table.Cell>
                                             <Table.Cell>{item.name_product}</Table.Cell>
                                             <Table.Cell>{item.description}</Table.Cell>
@@ -337,7 +378,7 @@ class Menus extends React.Component {
                                                     this.onHandleEditProduct(event, item)
                                                 }}>Edit</Button>
                                                 <Button negative size='mini' onClick={(event) => {
-                                                    this.handleDeleteProduct(event, item.id)
+                                                    this.handleModalDelete(event, item)
                                                 }}>Delete</Button>
                                             </Table.Cell>
                                             <Table.Cell>{Moment(item.dateadd).format('DD/MM/YYYY')}</Table.Cell>

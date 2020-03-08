@@ -13,7 +13,7 @@ function Editaccount(props) {
                     <Form.Field>
                         <div style={{ textAlign: 'center' }}>
                             <img src={props.data.URLimage ? props.data.URLimage : !props.data.pictures ? 
-                            require('../public/assets/Images/defaultphoto.png') : `${process.env.REACT_APP_HOST}` + '/' + props.data.pictures}
+                            require('../public/assets/Images/defaultphoto.png') : process.env.REACT_APP_HOST + '/' + props.data.pictures}
                                 style={{ height: 180, width: 180, borderRadius: 180 }} alt='upload images' />
                         </div>
                         <label>Profile pictures</label>

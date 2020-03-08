@@ -1,10 +1,12 @@
 import React from 'react'
-import {  Icon, Menu, Table, Grid, GridColumn, Form,
-    GridRow, Segment, Header, Modal, Button, Pagination} from 'semantic-ui-react'
+import {
+    Icon, Table, Grid, GridColumn, Form,
+    GridRow, Segment, Header, Modal, Button, Pagination
+} from 'semantic-ui-react'
 import axios from 'axios'
 import Moment from 'moment'
 import Editcategory from '../components/Editcategory'
-import {connect} from 'react-redux'
+import { connect } from 'react-redux'
 import { SemanticToastContainer } from 'react-semantic-toasts'
 import { toasting } from '../helper'
 
@@ -15,24 +17,27 @@ class Categories extends React.Component {
     show = (size) => () => this.setState({ size, open: true })
     close = () => this.setState({ open: false })
     closeedit = () => this.setState({ openedit: false })
+    closeDelete = () => this.setState({ openDelete: false })
 
-    state={
+    state = {
         dataCategory: [],
         open: false,
         fillCategory: {},
         openedit: false,
+        openDelete: false,
         limit: 6,
-        offset:0
+        offset: 0,
+        categoryList: {}
     }
-    
+
     getAllCategory = () => {
         axios.get(`${process.env.REACT_APP_HOST}/category/`)
-        .then(res => {
-            if (res.status === 200){
-                this.props.setDataCategory(res.data.data.result)
-                this.props.setDataPageCategory(res.data.data.totalPage)
-            }
-        })
+            .then(res => {
+                if (res.status === 200) {
+                    this.props.setDataCategory(res.data.data.result)
+                    this.props.setDataPageCategory(res.data.data.totalPage)
+                }
+            })
     }
     handleAddCategory = (event) => {
         this.setState({
@@ -41,24 +46,27 @@ class Categories extends React.Component {
     }
     handleSubmitCategory = (event) => {
         event.preventDefault()
-        if(this.state.name ===undefined){
-            toasting('Cannot Submit','Data Must Fill!!', 'error')
+        if (this.state.name === undefined) {
+            toasting('Cannot Submit', 'Data Must Fill!!', 'error')
         }
-        else{
+        else {
             const body = {
                 name: this.state.name
             }
             axios.post(`${process.env.REACT_APP_HOST}/category`, body)
-            .then(res => {
-                if(res.status === 200){
-                    try {
-                        this.getAllCategory()
-                        toasting('Done', 'Data Success Delete')
-                    } catch (error) {
-                        
+                .then(res => {
+                    if (res.status === 200) {
+                        try {
+                            this.setState({
+                                open: false
+                            })
+                            this.getAllCategory()
+                            toasting('Success', 'Category added')
+                        } catch (error) {
+
+                        }
                     }
-                }
-            })
+                })
         }
     }
     handleEditCategory = (event, data) => {
@@ -82,63 +90,74 @@ class Categories extends React.Component {
             name: this.state.fillCategory.name
         }
         axios.put(`${process.env.REACT_APP_HOST}/category/${id}`, body)
-        .then(res => {
-            if(res.status === 200){
-                try {
-                    toasting('Done', 'Data Success Submit')
+            .then(res => {
+                if (res.status === 200) {
+                    toasting('Done', 'Data Success Edit')
                     this.getAllCategory()
-                } catch (error) {
-                    
+                    this.setState({
+                        openedit: false
+                    })
                 }
-            }
+            })
+            .catch(() => {
+                toasting('Cannot Edit', 'Check the fill', 'error')
+            })
+    }
+    handleDeleteModal = (event, data) => {
+        event.preventDefault()
+        this.setState({
+            categoryList: data,
+            openDelete: true
         })
     }
     handleDeleteCategory = (event, id) => {
         event.preventDefault()
         axios.delete(`${process.env.REACT_APP_HOST}/category/${id}`)
-        .then(res => {
-            if(res.status === 200){
-                this.getAllCategory()
-                try {
+            .then(res => {
+                if (res.status === 200) {
+                    this.getAllCategory()
                     toasting('Done', 'Data Success Delete')
-                } catch (error) {
-                    
+                    this.setState({
+                        openDelete: false
+                    })
                 }
-            }
-        })
+            })
+            .catch(() => {
+                toasting('Cannot Submit', 'Data Must Fill!!', 'error')
+            })
     }
-    getPage = async(event, {limit, offset}) =>{
+    getPage = async (event, { limit, offset }) => {
         event.preventDefault()
         await this.setState((prevState, currentState) => {
             return {
                 ...prevState,
-                limit:limit || prevState.limit,
+                limit: limit || prevState.limit,
                 offset: offset || 0
             }
         })
         await axios.get(`${process.env.REACT_APP_HOST}/category/`)
-        .then(res => {
-            this.setState ({
-                TotalPage: res.data.data.totalPage
+            .then(res => {
+                this.setState({
+                    TotalPage: res.data.data.totalPage
+                })
+                this.props.setDataCategory(res.data.data.result)
             })
-            this.props.setDataCategory(res.data.data.result)
-        })
     }
 
 
-    handlePageCategory=(event, value) => {
+    handlePageCategory = (event, value) => {
         const offset = (value.activepage * this.state.limit) - this.state.limit
         event.preventDefault()
-        this.getPage(event, {offset})
+        this.getPage(event, { offset })
     }
 
-    render(){ 
-        const { open, size, openedit} = this.state
-        
-        return(
+    render() {
+        const { open, size, openedit, openDelete } = this.state
+
+        return (
             <Grid padded centered>
-                <div style={{'zIndex': 2000, 'display': 'fixed'}}>
-                <SemanticToastContainer position="top-right" />
+                <div style={{ 'zIndex': 2000, 'position': 'absolute' }}>
+                    <SemanticToastContainer position="top-right" />
                 </div>
                 <GridRow>
                     <GridColumn width={2}>
@@ -163,14 +182,33 @@ class Categories extends React.Component {
                                 <Modal.Actions>
                                     <Button negative onClick={this.close} >Cancel</Button>
                                     <Button
-                                    positive
-                                    icon='checkmark'
-                                    labelPosition='right'
-                                    content='Submit'
-                                    onClick={(event) => this.handleSubmitCategory(event)}
+                                        positive
+                                        icon='checkmark'
+                                        labelPosition='right'
+                                        content='Submit'
+                                        onClick={(event) => this.handleSubmitCategory(event)}
                                     />
                                 </Modal.Actions>
-                                </Modal>
+                            </Modal>
+
+                            <Modal size={'mini'} open={openDelete} onClose={this.closeDelete}>
+                                <Modal.Header>Delete this category ?</Modal.Header>
+                                <Modal.Content>
+                                    <div class="sub header">Name
+                                        <h3 class="ui header"> {this.state.categoryList.name}</h3>
+                                    </div>
+                                </Modal.Content>
+                                <Modal.Actions>
+                                    <Button negative onClick={this.closeDelete} >No</Button>
+                                    <Button
+                                        positive
+                                        icon='checkmark'
+                                        labelPosition='right'
+                                        content='Yes'
+                                        onClick={(event) => this.handleDeleteCategory(event, this.state.categoryList.id)}
+                                    />
+                                </Modal.Actions>
+                            </Modal>
                         </Segment.Group>
                     </GridColumn>
                     <GridColumn width={14}>
@@ -193,20 +231,20 @@ class Categories extends React.Component {
                                     handleSubmitUpdate={this.handleSubmitUpdate}
                                 />
                                 {this.props.getCategory.dataCategory.map((item, index) => {
-                                    return(
-                                <Table.Row > 
-                                    <Table.Cell textAlign='center'>{item.name}</Table.Cell>
-                                    <Table.Cell textAlign='center'>{Moment(item.dateadd).format('DD/MM/YYYY')}</Table.Cell>
-                                    <Table.Cell textAlign='center'>{Moment(item.dateupdate).format('DD/MM/YYYY')}</Table.Cell>
-                                    <Table.Cell textAlign='center'>
-                                         <Button primary size='mini' onClick={(event) => {
-                                             this.handleEditCategory(event, item)
-                                         }} >Edit</Button>
-                                         <Button negative size='mini' onClick={(event) => {
-                                             this.handleDeleteCategory(event, item.id)
-                                         }}>Delete</Button>
-                                    </Table.Cell>
-                                </Table.Row>
+                                    return (
+                                        <Table.Row >
+                                            <Table.Cell textAlign='center'>{item.name}</Table.Cell>
+                                            <Table.Cell textAlign='center'>{Moment(item.dateadd).format('DD/MM/YYYY')}</Table.Cell>
+                                            <Table.Cell textAlign='center'>{Moment(item.dateupdate).format('DD/MM/YYYY')}</Table.Cell>
+                                            <Table.Cell textAlign='center'>
+                                                <Button primary size='mini' onClick={(event) => {
+                                                    this.handleEditCategory(event, item)
+                                                }} >Edit</Button>
+                                                <Button negative size='mini' onClick={(event) => {
+                                                    this.handleDeleteModal(event, item)
+                                                }}>Delete</Button>
+                                            </Table.Cell>
+                                        </Table.Row>
                                     )
                                 })}
                             </Table.Body>
@@ -222,7 +260,7 @@ class Categories extends React.Component {
                             siblingRange={1}
                             totalPages={this.state.TotalPage}
                             onPageChange={this.handlePageCategory}
-                            />
+                        />
                     </GridColumn>
                 </GridRow>
             </Grid>
@@ -238,11 +276,11 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    setDataCategory: payload => dispatch ({
+    setDataCategory: payload => dispatch({
         type: 'GET_CATEGORY_ALL',
         payload
     }),
-    setDataPageCategory: payload => dispatch ({
+    setDataPageCategory: payload => dispatch({
         type: 'GET_CATEGORY_PAGE',
         payload
     })

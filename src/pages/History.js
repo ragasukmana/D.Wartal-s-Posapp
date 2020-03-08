@@ -56,9 +56,7 @@ class History extends React.Component {
         })
     }
    
-    render(){ 
-        console.log(this.state.dataDetails);
-        
+    render(){
         return(
             <div>
              <Grid columns='equal'>

@@ -4,34 +4,43 @@ import {
 } from 'semantic-ui-react'
 
 
-function Editaccount(props) {    
+function Editaccount(props) {
     return (
         <Modal size={props.size} open={props.open} onClose={props.closeedit}>
-            <Modal.Header >Edit Menu</Modal.Header>
+            <Modal.Header >Edit Account</Modal.Header>
             <Modal.Content>
                 <Form>
                     <Form.Field>
+                        <div style={{ textAlign: 'center' }}>
+                            <img src={props.data.URLimage ? props.data.URLimage : !props.data.pictures ? 
+                            require('../public/assets/Images/defaultphoto.png') : `${process.env.REACT_APP_HOST}` + '/' + props.data.pictures}
+                                style={{ height: 180, width: 180, borderRadius: 180 }} alt='upload images' />
+                        </div>
+                        <label>Profile pictures</label>
+                        <input type='file' name='filename' onChange={(event) => props.handleImageUpdate(event)} />
+                    </Form.Field>
+                    <Form.Field>
                         <label>Username</label>
                         <input placeholder='Username'
-                        defaultValue={props.data.username}
-                        onChange={(event) => props.handleUpdateUsername(event.target.value)}/>
+                            defaultValue={props.data.username}
+                            onChange={(event) => props.handleUpdateUsername(event.target.value)} />
                     </Form.Field>
                     <Form.Field>
                         <label>Password</label>
                         <input placeholder='Password' type='password'
-                        onChange={(event) => props.handlePasswordUpdate(event.target.value)} />
+                            onChange={(event) => props.handlePasswordUpdate(event.target.value)} />
                     </Form.Field>
                     <Form.Field>
                         <label>Name Account</label>
                         <input placeholder='Name account'
-                        defaultValue={props.data.name}
-                        onChange={(event) => props.handleNameEdit(event.target.value)} />
+                            defaultValue={props.data.name}
+                            onChange={(event) => props.handleNameEdit(event.target.value)} />
                     </Form.Field>
                     <Form.Field>
                         <label>Role</label>
                         <Dropdown placeholder='Role' search selection
-                        options={props.roleOptions}
-                        onChange={(event, { value }) => props.handleRoleUpdate(value)} />
+                            options={props.roleOptions}
+                            onChange={(event, { value }) => props.handleRoleUpdate(value)} />
                     </Form.Field>
                 </Form>
             </Modal.Content>

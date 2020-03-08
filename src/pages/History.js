@@ -57,7 +57,7 @@ class History extends React.Component {
     }
    
     render(){ 
-        
+        console.log(this.state.dataDetails);
         
         return(
             <div>

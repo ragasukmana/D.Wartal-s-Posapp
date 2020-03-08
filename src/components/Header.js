@@ -30,6 +30,8 @@ class Headers extends React.Component {
         }
     }
     render() {
+        console.log(this.props.auth.data.pictures);
+        
         return (
             <div className="ui huge menu">
                 <a className="item" href="/order">
@@ -50,7 +52,9 @@ class Headers extends React.Component {
                             <div>{this.props.auth.data.name}</div>
                         </div>
                     <div className="item">
-                        <Popup position='top right' trigger={<i className="big brown user circle icon" style={{ margin: 0 }} />} flowing hoverable>
+                        <Popup position='top right' trigger={<img src={ this.props.auth.data.pictures ? 
+                        process.env.REACT_APP_HOST + '/' + this.props.auth.data.pictures : require('../public/assets/Images/defaultphoto.png')} 
+                            style={{ borderRadius: 50, margin:5, height:50, width: 50}} alt='img' />} flowing hoverable>
                             <Grid centered divided columns={1}>
                                 <Grid.Column textAlign='center'>
                                     <Header as='h4'>Sign Out</Header>

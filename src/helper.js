@@ -1,5 +1,5 @@
 import React from 'react'
-import { toast } from 'react-semantic-toasts';
+import { toast} from 'react-semantic-toasts';
 
 const toasting = (title='', description='', type='success')=>{
     return setTimeout(() => {
@@ -12,8 +12,8 @@ const toasting = (title='', description='', type='success')=>{
             }
         )
     }, 150)
-}
-
+    
+    }
 export {
     toasting
 }

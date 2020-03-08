@@ -1,14 +1,14 @@
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import {
-    Icon, Button,  Table, Grid, GridColumn,
+    Icon, Button, Table, Grid, GridColumn,
     GridRow, Segment, Header, Modal, Form, Dropdown,
     Pagination
 } from 'semantic-ui-react'
 import axios from 'axios'
 import Editproduct from '../components/Editproduct'
 import Moment from 'moment'
-import {connect} from 'react-redux'
+import { connect } from 'react-redux'
 import { SemanticToastContainer } from 'react-semantic-toasts'
 import { toasting } from '../helper'
 
@@ -35,7 +35,7 @@ class Menus extends React.Component {
         axios.get(`${process.env.REACT_APP_HOST}/products?limit=${this.state.limit}&offset=${this.state.offset}`)
             .then(res => {
                 if (res.status === 200) {
-                    this.props.setDataProduct(res.data.data.result) 
+                    this.props.setDataProduct(res.data.data.result)
                     this.props.setDataTotalPage(res.data.data.TotalPage)
                 }
             })
@@ -86,14 +86,14 @@ class Menus extends React.Component {
         this.setState({
             image: inputImage
         })
-        
+
     }
 
     handleSubmitProduct = (event) => {
         event.preventDefault()
-        if (this.state.description===''||
-        this.state.image===undefined || this.state.price===''){
-            toasting('Cannot Submit', 'All must fill','error')
+        if (this.state.description === '' ||
+            this.state.image === undefined || this.state.price === '') {
+            toasting('Cannot Submit', 'All must fill', 'error')
         }
         else {
             const body = new FormData()
@@ -105,11 +105,11 @@ class Menus extends React.Component {
             axios.post(`${process.env.REACT_APP_HOST}/products`, body)
                 .then(res => {
                     if (res.status === 200) {
-                    toasting('Done', 'Data Success Submit')
-                    this.getAllMenu()
+                        toasting('Done', 'Data Success Submit')
+                        this.getAllMenu()
                     }
                 })
-                .catch(err =>{
+                .catch(err => {
                     toasting('Forbidden', 'Invalid file format/size !!!', 'error')
                 })
         }
@@ -130,7 +130,7 @@ class Menus extends React.Component {
                 image: inputImage
             }
         })
-        
+
     }
 
     handleCategoryUpdate = (value) => {
@@ -171,49 +171,48 @@ class Menus extends React.Component {
             .then(res => {
                 if (res.status === 200) {
                     toasting('Done', 'Data Success Submit')
-                    // this.props.setDataProduct(res.data.data.result)
                 }
             })
-            .catch(err => {
+            .catch(() => {
                 toasting('Forbidden', 'Invalid Format/size', 'error')
             })
     }
     handleDeleteProduct = (event, id) => {
         event.preventDefault()
         axios.delete(`${process.env.REACT_APP_HOST}/products/${id}`)
-        .then(res => {
-            if(res.status === 200){
-                this.getAllMenu()
-                try {
-                    toasting('Done', 'Success Delete')
-                } catch (error) {
-                    
+            .then(res => {
+                if (res.status === 200) {
+                    this.getAllMenu()
+                    try {
+                        toasting('Done', 'Success Delete')
+                    } catch (error) {
+
+                    }
                 }
-            }
-        })
+            })
     }
-    getPage = async(event, {limit, offset, sortby}) =>{
+    getPage = async (event, { limit, offset, sortby }) => {
         event.preventDefault()
         await this.setState((prevState, currentState) => {
             return {
                 ...prevState,
-                sortby:sortby || prevState.sortby,
-                limit:limit || prevState.limit,
+                sortby: sortby || prevState.sortby,
+                limit: limit || prevState.limit,
                 offset: offset || 0
             }
         })
         await axios.get(`${process.env.REACT_APP_HOST}/products?limit=${this.state.limit}&offset=${this.state.offset}&sortby=${this.state.sortby}`)
-        .then(res => {
-            this.setState ({
-                TotalPage: res.data.data.TotalPage
+            .then(res => {
+                this.setState({
+                    TotalPage: res.data.data.TotalPage
+                })
+                this.props.setDataProduct(res.data.data.result)
             })
-            this.props.setDataProduct(res.data.data.result)
-        })
     }
     handlePageProduct = (event, value) => {
         const offset = (value.activePage * this.state.limit) - this.state.limit
         event.preventDefault()
-        this.getPage(event, {offset})
+        this.getPage(event, { offset })
 
     }
     render() {
@@ -225,11 +224,11 @@ class Menus extends React.Component {
                 value: item.id
             }
         })
-        
-      return (
+
+        return (
             <Grid padded centered>
-                <div style={{'zIndex': 2000, position: 'fixed'}}>
-                <SemanticToastContainer position="top-right" />
+                <div style={{ 'zIndex': 2000, position: 'fixed' }}>
+                    <SemanticToastContainer position="top-right" />
                 </div>
                 <GridRow>
                     <GridColumn width={2}>
@@ -292,18 +291,18 @@ class Menus extends React.Component {
                                 <Table.Row textAlign='center'>
                                     <Table.HeaderCell>Image</Table.HeaderCell>
                                     <Table.HeaderCell
-                                    onClick={(event) => this.getPage(event, {sortby:'name_product ASC'})}
+                                        onClick={(event) => this.getPage(event, { sortby: 'name_product ASC' })}
                                     >Name</Table.HeaderCell>
                                     <Table.HeaderCell width={5}>Description</Table.HeaderCell>
                                     <Table.HeaderCell
-                                    onClick={(event) => this.getPage(event, {sortby:'price ASC'})}>Price</Table.HeaderCell>
+                                        onClick={(event) => this.getPage(event, { sortby: 'price ASC' })}>Price</Table.HeaderCell>
                                     <Table.HeaderCell width={1}>Category</Table.HeaderCell>
                                     <Table.HeaderCell width={2}>Action</Table.HeaderCell>
-                                    <Table.HeaderCell 
-                                    onClick={(event) => this.getPage(event, {sortby:'dateadd DESC'})}>
-                                    Date Add</Table.HeaderCell>
                                     <Table.HeaderCell
-                                    onClick={(event) => this.getPage(event, {sortby:'dateupdate DESC'})} 
+                                        onClick={(event) => this.getPage(event, { sortby: 'dateadd DESC' })}>
+                                        Date Add</Table.HeaderCell>
+                                    <Table.HeaderCell
+                                        onClick={(event) => this.getPage(event, { sortby: 'dateupdate DESC' })}
                                     >Date Update</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>
@@ -327,7 +326,7 @@ class Menus extends React.Component {
                                         <Table.Row textAlign='center'>
                                             <Table.Cell>
                                                 <img alt="" height={100} width={100}
-                                                    src={`${process.env.REACT_APP_HOST}` + '/' + `${item.image}`} / >
+                                                    src={`${process.env.REACT_APP_HOST}` + '/' + `${item.image}`} />
                                             </Table.Cell>
                                             <Table.Cell>{item.name_product}</Table.Cell>
                                             <Table.Cell>{item.description}</Table.Cell>
@@ -361,7 +360,7 @@ class Menus extends React.Component {
                             siblingRange={1}
                             totalPages={this.props.getProduct.TotalPage}
                             onPageChange={this.handlePageProduct}
-                                />
+                        />
                     </GridColumn>
                 </GridRow>
             </Grid>
@@ -376,15 +375,15 @@ const mapStateToProps = state => {
     }
 }
 const mapDispatchToProps = dispatch => ({
-    setDataProduct: payload => dispatch ({
+    setDataProduct: payload => dispatch({
         type: 'GET_PRODUCT_SHOW',
         payload
     }),
-    setDataTotalPage: payload => dispatch ({
+    setDataTotalPage: payload => dispatch({
         type: 'GET_TOTAL_PRODUCT',
         payload
     }),
-    setDataCategory: payload => dispatch ({
+    setDataCategory: payload => dispatch({
         type: 'GET_CATEGORY_ALL',
         payload
     })

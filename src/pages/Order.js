@@ -190,8 +190,6 @@ class Order extends React.Component {
                 })
         }
     }
-
-
     handlePageProduct = (event, value) => {
     const offset = (value.activePage * this.state.limit) - this.state.limit
     event.preventDefault()
@@ -299,10 +297,9 @@ class Order extends React.Component {
                                                     </div>
                                                     <center>
                                                         <div style={{ float: 'center', marginTop: 8 }}>
-                                                            <Button.Group size='mini\'>
+                                                            <Button.Group size='mini'>
                                                                 <Button id={item.id} 
-                                                                onClick={(event) => this.increaseOrder(item.id, item.price)} 
-                                                                >
+                                                                onClick={(event) => this.increaseOrder(item.id, item.price)} >
                                                                     <Icon name='add' />
                                                                     Add
                                                                 </Button>
